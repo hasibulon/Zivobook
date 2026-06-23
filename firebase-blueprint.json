@@ -1,0 +1,275 @@
+{
+  "entities": {
+    "Profile": {
+      "title": "Profile",
+      "description": "User profile document, keyed by UID.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique user ID matching the auth UID." },
+        "username": { "type": "string", "description": "Unique handle of the user." },
+        "displayName": { "type": "string", "description": "Display name of the user." },
+        "avatar": { "type": "string", "description": "Avatar image URL." },
+        "bio": { "type": "string", "description": "User signature biography." },
+        "isVerified": { "type": "boolean", "description": "Whether the user's identity is verified." },
+        "verificationType": { "type": "string", "enum": ["government_id", "biometric", "professional", "community"] },
+        "verifiedAt": { "type": "string", "description": "Month and year of verification." },
+        "profession": { "type": "string", "description": "Current profession." },
+        "followersCount": { "type": "integer" },
+        "followingCount": { "type": "integer" },
+        "badgeLevel": { "type": "string", "enum": ["gold", "emerald", "blue"] },
+        "is_banned": { "type": "boolean", "description": "Whether the user profile is banned strictly." },
+        "role": { "type": "string", "description": "User role such as admin or standard." },
+        "coverPhoto": { "type": "string", "description": "The custom base64 or URL cover photo banner." },
+        "website": { "type": "string", "description": "User custom personal website address." },
+        "twitter": { "type": "string", "description": "Social Twitter address." },
+        "linkedin": { "type": "string", "description": "Social LinkedIn professional link." },
+        "isDeleted": { "type": "boolean", "description": "True if user profile is soft-deleted." },
+        "deletedAt": { "type": "string", "description": "Timestamp when the user account was soft-deleted." }
+      },
+      "required": ["id", "username", "displayName", "avatar", "isVerified", "followersCount", "followingCount"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Short user post in the feed.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "author": { "type": "object", "description": "Cache of the author profile info for feed optimization." },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "likes": { "type": "integer" },
+        "reposts": { "type": "integer" },
+        "commentsCount": { "type": "integer" },
+        "hasVerificationRecord": { "type": "boolean" },
+        "verificationMethod": { "type": "string" },
+        "verifiedLocation": { "type": "string" }
+      },
+      "required": ["id", "authorId", "author", "content", "createdAt", "likes", "reposts", "commentsCount"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "User comment on a post.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "author": { "type": "object" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "likes": { "type": "integer" }
+      },
+      "required": ["id", "postId", "authorId", "author", "content", "createdAt", "likes"]
+    },
+    "Like": {
+      "title": "Like",
+      "description": "Indicates a user has liked a post.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the profile who liked." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "createdAt"]
+    },
+    "VerificationRequest": {
+      "title": "VerificationRequest",
+      "description": "User request for a green tick verification.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "realName": { "type": "string" },
+        "residency": { "type": "string" },
+        "verificationType": { "type": "string", "enum": ["government_id", "biometric", "professional", "community"] },
+        "idDocumentUrl": { "type": "string" },
+        "selfieUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "method": { "type": "string" },
+        "rejectionReason": { "type": "string", "description": "Message or reason provided during rejection" }
+      },
+      "required": ["id", "userId", "realName", "residency", "verificationType", "idDocumentUrl", "selfieUrl", "status", "createdAt", "updatedAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Real-time user notification document.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "type": { "type": "string", "enum": ["verification_approved", "like", "comment", "repost", "system"] },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" },
+        "sender": { "type": "object" }
+      },
+      "required": ["id", "recipientId", "type", "title", "message", "createdAt", "read"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Moderator logs logging reported toxic or inappropriate posts.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "postContent": { "type": "string" },
+        "postAuthorName": { "type": "string" },
+        "reason": { "type": "string" },
+        "reporterId": { "type": "string" },
+        "reporterName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "dismissed", "resolved"] }
+      },
+      "required": ["id", "postId", "reason", "reporterId", "reporterName", "createdAt", "status"]
+    },
+    "AppSettings": {
+      "title": "AppSettings",
+      "description": "App settings configurations for dynamic branding.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "dark_bg_color": { "type": "string" },
+        "dark_card_color": { "type": "string" },
+        "light_bg_color": { "type": "string" },
+        "light_card_color": { "type": "string" },
+        "accent_color": { "type": "string" },
+        "base_font_size": { "type": "string", "enum": ["14px", "16px", "18px", "20px"] }
+      },
+      "required": ["id", "dark_bg_color", "dark_card_color", "light_bg_color", "light_card_color", "accent_color", "base_font_size"]
+    },
+    "UserGoal": {
+      "title": "UserGoal",
+      "description": "User learning paths or personalized interest goals.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "targetDate": { "type": "string" },
+        "progressPercent": { "type": "integer" },
+        "status": { "type": "string" },
+        "milestones": { "type": "array" },
+        "aiRecommendations": { "type": "array" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "category", "targetDate", "progressPercent", "status", "milestones", "createdAt"]
+    },
+    "OnboardingStatus": {
+      "title": "OnboardingStatus",
+      "description": "The current onboarding wizard progress status for a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "isCompleted": { "type": "boolean" },
+        "currentStep": { "type": "integer" },
+        "completedSteps": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      }
+    },
+    "Follower": {
+      "title": "Follower",
+      "description": "A follow connection between two users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "followerId": { "type": "string" },
+        "followingId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "followerId", "followingId", "createdAt"]
+    },
+    "Friendship": {
+      "title": "Friendship",
+      "description": "Friendship connect ledger status document between two users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userOne": { "type": "string" },
+        "userTwo": { "type": "string" },
+        "status": { "type": "string" },
+        "requesterId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userOne", "userTwo", "status", "requesterId", "createdAt", "updatedAt"]
+    },
+    "CustomPage": {
+      "title": "CustomPage",
+      "description": "Dynamic custom footer page managed by admin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "titleBn": { "type": "string" },
+        "contentEn": { "type": "string" },
+        "contentBn": { "type": "string" },
+        "slug": { "type": "string" },
+        "order": { "type": "integer" }
+      },
+      "required": ["id", "titleEn", "titleBn", "contentEn", "contentBn"]
+    }
+  },
+  "firestore": {
+    "/profiles/{userId}": {
+      "schema": "Profile",
+      "description": "Profiles collection mapping userId to User profiles."
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Posts collection for newsfeed."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Comments nested inside posts."
+    },
+    "/posts/{postId}/likes/{userId}": {
+      "schema": "Like",
+      "description": "Likes nested inside posts."
+    },
+    "/verification_requests/{requestId}": {
+      "schema": "VerificationRequest",
+      "description": "Verification requests filed by users."
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "User notification subcollection or collection."
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Content reports submitted by users."
+    },
+    "/app_settings/{settingsId}": {
+      "schema": "AppSettings",
+      "description": "Global application colors and font configuration settings."
+    },
+    "/custom_pages/{pageId}": {
+      "schema": "CustomPage",
+      "description": "Custom footer screens displayed during onboarding."
+    },
+    "/followers/{followId}": {
+      "schema": "Follower",
+      "description": "Stores user follower following relationships."
+    },
+    "/friendships/{docId}": {
+      "schema": "Friendship",
+      "description": "Stores friendship connections and pending requests."
+    },
+    "/user_goals/{goalId}": {
+      "schema": "UserGoal",
+      "description": "Stores learning pathways and interest-based goals created by the users."
+    },
+    "/onboarding_status/{userId}": {
+      "schema": "OnboardingStatus",
+      "description": "Tracks wizard completion steps."
+    },
+    "/test/connection": {
+      "schema": "object",
+      "description": "Safe connection handshake document."
+    }
+  }
+}

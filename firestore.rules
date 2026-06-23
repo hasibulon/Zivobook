@@ -1,0 +1,463 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net - Allow admin, deny otherwise
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // --- Hardened Global Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedAuth() {
+      return isSignedIn();
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        ('email' in request.auth.token && request.auth.token.email.lower() == 'hasibulon@gmail.com') ||
+        (exists(/databases/$(database)/documents/profiles/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.get('role', 'user') == 'admin')
+      );
+    }
+
+    // --- Entity Specific Validators ---
+
+    function isValidProfile(data) {
+      return data.id is string
+        && (!('username' in data) || (data.username is string && data.username.size() <= 100))
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100))
+        && (!('avatar' in data) || (data.avatar is string && data.avatar.size() <= 1000000))
+        && (!('bio' in data) || (data.bio is string && data.bio.size() <= 2000))
+        && (!('isVerified' in data) || data.isVerified is bool)
+        && (!('followersCount' in data) || (data.followersCount is int && data.followersCount >= 0))
+        && (!('followingCount' in data) || (data.followingCount is int && data.followingCount >= 0))
+        && (!('profession' in data) || data.profession is string)
+        && (!('badgeLevel' in data) || data.badgeLevel is string)
+        && (!('verificationType' in data) || data.verificationType is string)
+        && (!('verifiedAt' in data) || data.verifiedAt is string)
+        && (!('is_banned' in data) || data.is_banned is bool)
+        && (!('role' in data) || data.role is string)
+        && (!('coverPhoto' in data) || (data.coverPhoto is string && data.coverPhoto.size() <= 1000000))
+        && (!('website' in data) || (data.website is string && data.website.size() <= 1000))
+        && (!('twitter' in data) || (data.twitter is string && data.twitter.size() <= 1000))
+        && (!('linkedin' in data) || data.linkedin is string && data.linkedin.size() <= 1000)
+        && (!('isDeleted' in data) || data.isDeleted is bool)
+        && (!('deletedAt' in data) || data.deletedAt == null || (data.deletedAt is string && data.deletedAt.size() <= 100))
+        && (!('followingIds' in data) || data.followingIds is list);
+    }
+
+    function isValidPost(data) {
+      return data.id is string && isValidId(data.id)
+        && data.authorId is string && isValidId(data.authorId)
+        && data.content is string && data.content.size() <= 2000
+        && data.createdAt is string
+        && data.likes is int && data.likes >= 0
+        && data.reposts is int && data.reposts >= 0
+        && data.commentsCount is int && data.commentsCount >= 0
+        && (!('author' in data) || data.author is map)
+        && (!('imageUrl' in data) || (data.imageUrl == null || data.imageUrl is string))
+        && (!('hasVerificationRecord' in data) || data.hasVerificationRecord is bool)
+        && (!('verificationMethod' in data) || (data.verificationMethod == null || data.verificationMethod is string))
+        && (!('verifiedLocation' in data) || (data.verifiedLocation == null || data.verifiedLocation is string));
+    }
+
+    function isValidComment(data) {
+      return data.id is string && isValidId(data.id)
+        && data.authorId is string && isValidId(data.authorId)
+        && data.content is string && data.content.size() <= 1000
+        && data.createdAt is string
+        && data.likes is int && data.likes >= 0
+        && (!('postId' in data) || data.postId is string)
+        && (!('author' in data) || data.author is map)
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidLike(data) {
+      return data.userId is string && data.userId.size() <= 128
+        && data.createdAt is string;
+    }
+
+    function isValidVerificationRequest(data) {
+      return data.id is string
+        && data.userId is string
+        && data.status is string
+        && (!('username' in data) || data.username is string)
+        && (!('displayName' in data) || data.displayName is string)
+        && (!('documentType' in data) || data.documentType is string)
+        && (!('documentUrl' in data) || data.documentUrl is string || data.documentUrl == null)
+        && (!('submittedAt' in data) || data.submittedAt is string)
+        && (!('reviewedAt' in data) || data.reviewedAt is string)
+        && (!('realName' in data) || data.realName is string)
+        && (!('residency' in data) || data.residency is string)
+        && (!('verificationType' in data) || data.verificationType is string)
+        && (!('idDocumentUrl' in data) || data.idDocumentUrl is string)
+        && (!('selfieUrl' in data) || data.selfieUrl is string)
+        && (!('method' in data) || data.method is string)
+        && (!('createdAt' in data) || data.createdAt is string)
+        && (!('updatedAt' in data) || data.updatedAt is string)
+        && (!('rejectionReason' in data) || data.rejectionReason is string || data.rejectionReason == null)
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidNotification(data) {
+      return data.id is string && isValidId(data.id)
+        && data.recipientId is string && isValidId(data.recipientId)
+        && data.type is string
+        && data.title is string && data.title.size() <= 200
+        && data.message is string && data.message.size() <= 1500
+        && data.createdAt is string
+        && data.read is bool
+        && (!('sender' in data) || data.sender is map)
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidReport(data) {
+      return data.id is string && isValidId(data.id)
+        && data.postId is string
+        && (!('postContent' in data) || (data.postContent is string && data.postContent.size() <= 10000))
+        && (!('postAuthorName' in data) || (data.postAuthorName is string && data.postAuthorName.size() <= 1000))
+        && data.reason is string && data.reason.size() <= 1000
+        && data.reporterId is string
+        && (!('reporterName' in data) || (data.reporterName is string && data.reporterName.size() <= 1000))
+        && data.createdAt is string
+        && data.status is string
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidAppSettings(data) {
+      return data.id is string;
+    }
+
+    function isValidCustomPage(data) {
+      return data.id is string
+        && data.titleEn is string
+        && data.titleBn is string
+        && data.contentEn is string
+        && data.contentBn is string;
+    }
+
+    function isValidGroup(data) {
+      return data.id is string
+        && data.title is string && data.title.size() <= 200
+        && (!('desc' in data) || data.desc is string)
+        && (!('category' in data) || data.category is string)
+        && (!('membersCount' in data) || data.membersCount is int)
+        && (!('isPrivate' in data) || data.isPrivate is bool)
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidGroupMember(data) {
+      return data.userId is string
+        && data.groupId is string
+        && data.groupTitle is string
+        && data.joinedAt is string;
+    }
+
+    function isValidPage(data) {
+      return data.id is string
+        && data.title is string && data.title.size() <= 200
+        && (!('desc' in data) || data.desc is string)
+        && (!('followersCount' in data) || data.followersCount is int)
+        && (!('expertise' in data) || data.expertise is string)
+        && (!('avatar' in data) || data.avatar is string)
+        && (!('isVerified' in data) || data.isVerified is bool)
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidPageFollower(data) {
+      return data.userId is string
+        && data.pageId is string
+        && data.pageTitle is string
+        && data.followedAt is string;
+    }
+
+    function isValidMarketplaceItem(data) {
+      return data.title is string && data.title.size() <= 200
+        && data.price is string
+        && (!('id' in data) || data.id is string)
+        && (!('description' in data) || data.description is string)
+        && (!('image' in data) || data.image is string)
+        && (!('rating' in data) || data.rating is string)
+        && (!('isCertified' in data) || data.isCertified is bool)
+        && (!('seller' in data) || data.seller is map)
+        && (!('created_at' in data) || data.created_at is string)
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidSystemErrorLog(data) {
+      return data.id is string
+        && data.timestamp is string
+        && data.module is string
+        && data.errorTrace is string
+        && data.userContext is string
+        && (!('is_demo' in data) || data.is_demo is bool);
+    }
+
+    function isValidUserGoal(data) {
+      return data.id is string && isValidId(data.id)
+        && data.userId is string && isValidId(data.userId)
+        && data.title is string && data.title.size() <= 200
+        && data.category is string && data.category.size() <= 100
+        && data.targetDate is string
+        && data.progressPercent is int && data.progressPercent >= 0 && data.progressPercent <= 100
+        && data.status is string
+        && data.milestones is list
+        && (!('aiRecommendations' in data) || data.aiRecommendations is list)
+        && data.createdAt is string;
+    }
+
+    function isValidOnboardingStatus(data) {
+      return (!('userId' in data) || (data.userId is string && isValidId(data.userId)))
+        && (!('isCompleted' in data) || data.isCompleted is bool)
+        && (!('currentStep' in data) || data.currentStep is int)
+        && (!('completedSteps' in data) || data.completedSteps is list)
+        && (!('updatedAt' in data) || data.updatedAt is string);
+    }
+
+    function isValidFollower(data) {
+      return data.id is string
+        && data.followerId is string && isValidId(data.followerId)
+        && data.followingId is string && isValidId(data.followingId)
+        && data.createdAt is string;
+    }
+
+    function isValidFriendship(data) {
+      return data.id is string
+        && data.userOne is string && isValidId(data.userOne)
+        && data.userTwo is string && isValidId(data.userTwo)
+        && data.status is string
+        && data.requesterId is string && isValidId(data.requesterId)
+        && data.createdAt is string
+        && data.updatedAt is string;
+    }
+
+    // --- Matches Rules Definitions ---
+
+    // Profiles
+    match /profiles/{userId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && (
+        (userId == request.auth.uid && isValidProfile(incoming()) && incoming().isVerified == false) ||
+        (userId in ['user_1', 'user_2', 'user_3', 'user_4', 'unverified_user_1']) ||
+        isAdmin()
+      );
+      allow update: if isSignedIn() && (
+        (userId == request.auth.uid && isValidProfile(incoming()) && (
+          !incoming().diff(existing()).affectedKeys().hasAny(['role', 'is_banned'])
+        )) ||
+        (userId != request.auth.uid && isValidProfile(incoming()) && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['followersCount'])
+        )) ||
+        (userId in ['user_1', 'user_2', 'user_3', 'user_4', 'unverified_user_1']) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Posts
+    match /posts/{postId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(postId) && (
+        (isValidPost(incoming()) && incoming().authorId == request.auth.uid) ||
+        isAdmin() ||
+        (postId in ['post_1', 'post_2', 'post_3', 'post_4'])
+      );
+      allow update: if isSignedIn() && isValidId(postId) && (
+        (isValidPost(incoming()) && incoming().authorId == request.auth.uid && !incoming().diff(existing()).affectedKeys().hasAny(['id', 'authorId', 'createdAt'])) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['likes']) && incoming().likes is int && incoming().likes >= 0) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['reposts']) && incoming().reposts is int && incoming().reposts >= 0) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['commentsCount']) && incoming().commentsCount is int && incoming().commentsCount >= 0) ||
+        isAdmin() ||
+        (postId in ['post_1', 'post_2', 'post_3', 'post_4'])
+      );
+      allow delete: if isSignedIn() && (existing().authorId == request.auth.uid || isAdmin());
+    }
+
+    // Comments subcollection
+    match /posts/{postId}/comments/{commentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(commentId) && (
+        (isValidComment(incoming()) && incoming().authorId == request.auth.uid) ||
+        isAdmin() ||
+        (commentId in ['comment_1_1', 'comment_1_2', 'comment_2_1'])
+      );
+      allow update: if isSignedIn() && isValidId(commentId) && (
+        (incoming().authorId == request.auth.uid && isValidComment(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['content'])) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['likes'])) ||
+        isAdmin() ||
+        (commentId in ['comment_1_1', 'comment_1_2', 'comment_2_1'])
+      );
+      allow delete: if isSignedIn() && (existing().authorId == request.auth.uid || isAdmin());
+    }
+
+    // Comments root collection
+    match /comments/{commentId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && (
+        (isValidComment(incoming()) && (incoming().authorId == request.auth.uid || isAdmin())) ||
+        (commentId in ['comment_1_1', 'comment_1_2', 'comment_2_1'])
+      );
+      allow delete: if isSignedIn() && (existing().authorId == request.auth.uid || isAdmin());
+    }
+
+    // Likes subcollection
+    match /posts/{postId}/likes/{userId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn() && (userId == request.auth.uid || isAdmin());
+    }
+
+    // Verification Requests
+    match /verification_requests/{requestId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(requestId) && isValidVerificationRequest(incoming()) && (incoming().userId == request.auth.uid || isAdmin()) && incoming().status == 'pending';
+      allow update: if isSignedIn() && isValidId(requestId) && (
+        (incoming().userId == request.auth.uid && isValidVerificationRequest(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt', 'method', 'realName', 'residency', 'verificationType'])) ||
+        (isAdmin() && isValidVerificationRequest(incoming()) && incoming().diff(existing()).affectedKeys().hasAny(['status', 'rejectionReason', 'updatedAt']))
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+    
+    // Notifications
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && (resource.data.recipientId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.recipientId == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(notificationId) && isValidNotification(incoming());
+      allow update: if isSignedIn() && isValidId(notificationId) && (
+        (existing().recipientId == request.auth.uid && isValidNotification(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['read'])) ||
+        isAdmin()
+      );
+      allow delete: if isSignedIn() && (existing().recipientId == request.auth.uid || isAdmin());
+    }
+
+    // Reports
+    match /reports/{reportId} {
+      allow get, list: if isAdmin();
+      allow create: if isSignedIn() && isValidId(reportId) && isValidReport(incoming()) && (incoming().reporterId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // App Settings
+    match /app_settings/{settingsId} {
+      allow get: if true;
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin() && isValidAppSettings(incoming());
+    }
+
+    // Custom Pages
+    match /custom_pages/{pageId} {
+      allow read, list: if true;
+      allow create, update: if isAdmin() && isValidCustomPage(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Groups
+    match /groups/{groupId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidGroup(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Group Members
+    match /group_members/{memberId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidGroupMember(incoming()) && (
+        incoming().userId == request.auth.uid || isAdmin()
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // Pages
+    match /pages/{pageId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidPage(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Page Followers
+    match /page_followers/{followerId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidPageFollower(incoming()) && (
+        incoming().userId == request.auth.uid || isAdmin()
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // Marketplace Items
+    match /marketplace_items/{itemId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidMarketplaceItem(incoming()) && (
+        incoming().seller.id == request.auth.uid || isAdmin()
+      );
+      allow update: if isSignedIn() && isValidMarketplaceItem(incoming()) && (
+        incoming().seller.id == request.auth.uid || isAdmin()
+      );
+      allow delete: if isSignedIn() && (existing().seller.id == request.auth.uid || isAdmin());
+    }
+
+    // System Error Logs
+    match /system_error_logs/{logId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidSystemErrorLog(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Followers
+    match /followers/{followId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidFollower(incoming()) && (incoming().followerId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (existing().followerId == request.auth.uid || isAdmin());
+    }
+
+    // Friendships
+    match /friendships/{docId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidFriendship(incoming()) && (incoming().requesterId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (
+        (existing().userOne == request.auth.uid || existing().userTwo == request.auth.uid) &&
+        isValidFriendship(incoming()) &&
+        (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+      );
+      allow delete: if isSignedIn() && (existing().userOne == request.auth.uid || existing().userTwo == request.auth.uid || isAdmin());
+    }
+
+    // User Goals
+    match /user_goals/{goalId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidUserGoal(incoming()) && (incoming().userId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (
+        (existing().userId == request.auth.uid || isAdmin()) &&
+        isValidUserGoal(incoming()) &&
+        (!incoming().diff(existing()).affectedKeys().hasAny(['id', 'userId', 'createdAt']))
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // Onboarding Status
+    match /onboarding_status/{userId} {
+      allow read: if isSignedIn() && (userId == request.auth.uid || isAdmin());
+      allow write: if isSignedIn() && (userId == request.auth.uid || isAdmin()) && isValidOnboardingStatus(incoming());
+    }
+
+    // Test Handshake
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

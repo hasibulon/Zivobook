@@ -1,0 +1,26 @@
+{
+  "name": "VeriTrust | Verified Social Network",
+  "short_name": "VeriTrust",
+  "description": "The decentralized immersive secure web space for trust-verified members",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#1877f2",
+  "icons": [
+    {
+      "src": "/app-logo-maskable.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/app-logo.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["social", "utilities"],
+  "prefer_related_applications": false
+}

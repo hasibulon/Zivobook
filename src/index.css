@@ -1,0 +1,411 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --animate-fade-in: fade-in 0.25s ease-out;
+  --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-loading-bar-slide: loading-bar-slide 2s infinite ease-in-out;
+
+  @keyframes loading-bar-slide {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(30%); }
+    100% { transform: translateX(160%); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes scale-up {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* Define Slate variable mappings for dark / light flexibility */
+  --color-slate-50: var(--slate-50);
+  --color-slate-100: var(--slate-100);
+  --color-slate-200: var(--slate-200);
+  --color-slate-300: var(--slate-300);
+  --color-slate-350: var(--slate-350);
+  --color-slate-400: var(--slate-400);
+  --color-slate-500: var(--slate-500);
+  --color-slate-600: var(--slate-600);
+  --color-slate-750: var(--slate-750);
+  --color-slate-800: var(--slate-800);
+  --color-slate-850: var(--slate-850);
+  --color-slate-900: var(--slate-900);
+  --color-slate-950: var(--slate-950);
+  --color-slate-955: var(--slate-955);
+  --color-slate-1000: var(--slate-1000);
+}
+
+:root {
+  /* Premium Dark Aesthetic Design Tokens */
+  --slate-50: #e4e6eb;     /* Primary text color (zinc-50) */
+  --slate-100: #f1f5f9;    /* Main headers/titles (zinc-50) */
+  --slate-200: #94a3b8;    /* Secondary/body/helper text (zinc-400) */
+  --slate-300: #e4e6eb;    /* Content texts (zinc-50) */
+  --slate-350: #94a3b8;     /* Soft paragraphs */
+  --slate-400: #94a3b8;    /* Muted tags and labels (zinc-400) */
+  --slate-500: #3b82f6;    /* Accent active icon color (blue-500) */
+  --slate-600: #27272a;    /* Borders & dividers (zinc-800) */
+  --slate-750: #27272a;    /* Panel border lines */
+  --slate-805: #27272a;    /* Button interactive outlines */
+  --slate-800: #27272a;    /* Card and general borders */
+  --slate-850: #27272a;    /* Delicate frames */
+  --slate-900: #212124;    /* Active card state or hover highlights */
+  --slate-955: #0b0c10;    /* Main platform background */
+  --slate-1000: #0b0c10;   /* Secondary outer wrapper background */
+  --slate-950: #18181b;    /* Card & container surfaces (zinc-900) */
+}
+
+/* Facebook Light Theme Configuration (inspired by home.jpg) */
+html.light {
+  /* Clean & Professional Light Mode Design Tokens - Premium Minimalist Standard */
+  --slate-50: #1e293b;     /* Primary text color (slate-800) */
+  --slate-100: #0f172a;    /* Main headers/titles (slate-900) */
+  --slate-200: #334155;    /* Secondary/body/helper text (slate-700) */
+  --slate-300: #1e293b;    /* Content texts (slate-800) */
+  --slate-350: #475569;    /* Soft paragraphs (slate-600) */
+  --slate-400: #64748b;    /* Muted tags and labels (slate-500) */
+  --slate-500: #4f46e5;    /* Premium Accent brand active highlights (indigo-600) */
+  --slate-600: #f1f5f9;    /* Thin/Light borders & dividers (slate-100) */
+  --slate-750: #f1f5f9;    /* Panel border lines */
+  --slate-805: #e2e8f0;    /* Button interactive outlines */
+  --slate-800: #f1f5f9;    /* Card and general borders (border-slate-100) */
+  --slate-850: #f1f5f9;    /* Delicate frames */
+  --slate-900: #f8fafc;    /* Active card state or hover highlights (slate-50) */
+  --slate-955: #f8fafc;    /* Premium matte canvas background (slate-50) */
+  --slate-1000: #f8fafc;   /* Secondary outer wrapper background (slate-50) */
+  --slate-950: #ffffff;    /* Card & container surfaces (solid white) */
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased font-sans;
+}
+
+/* Fallback handling for text meant to contrast with light background */
+/* Keep true white text inside active filled badge, primary accent button elements, and chat bubbles */
+
+/* Eye-Friendly High-Contrast Text Overrides for Light Mode */
+html.light .text-slate-950 { color: #1c1e21 !important; }
+html.light .text-slate-900 { color: #1c1e21 !important; }
+html.light .text-slate-850 { color: #1c1e21 !important; }
+html.light .text-slate-800 { color: #1c1e21 !important; }
+html.light .text-slate-750 { color: #1c1e21 !important; }
+html.light .text-slate-700 { color: #1c1e21 !important; }
+html.light .text-slate-650 { color: #65676b !important; }
+html.light .text-slate-600 { color: #65676b !important; }
+html.light .text-slate-550 { color: #65676b !important; }
+html.light .text-slate-500 { color: #65676b !important; }
+html.light .text-slate-455 { color: #65676b !important; }
+html.light .text-slate-450 { color: #65676b !important; }
+html.light .text-slate-400 { color: #65676b !important; }
+html.light .text-slate-350 { color: #65676b !important; }
+html.light .text-slate-300 { color: #1c1e21 !important; }
+html.light .text-slate-205 { color: #1c1e21 !important; }
+html.light .text-slate-200 { color: #1c1e21 !important; }
+html.light .text-slate-105 { color: #1c1e21 !important; }
+html.light .text-slate-100 { color: #1c1e21 !important; }
+html.light .text-slate-50 { color: #1c1e21 !important; }
+
+html.light .border-slate-800 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .border-slate-850 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .border-slate-900 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .bg-slate-955 {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-slate-950 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-slate-905 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-slate-900 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-slate-850 {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-slate-1000 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .hover\:bg-slate-950:hover {
+  background-color: #ffffff !important;
+}
+
+html.light .hover\:bg-slate-900:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .hover\:bg-slate-850:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .hover\:text-white:hover:not([class*="bg-indigo-"]):not([class*="bg-blue-"]):not([class*="bg-emerald-"]):not([class*="bg-red-"]):not([class*="bg-[#1877F2]"]) {
+  color: #0f172a !important;
+}
+
+html.light .hover\:text-slate-100:hover {
+  color: #0f172a !important;
+}
+
+html.light .hover\:text-slate-200:hover {
+  color: #1e293b !important;
+}
+
+html.light .bg-slate-950\/10 { background-color: rgba(15, 23, 42, 0.05) !important; }
+html.light .bg-slate-950\/20 { background-color: rgba(15, 23, 42, 0.05) !important; }
+html.light .bg-slate-950\/30 { background-color: rgba(15, 23, 42, 0.08) !important; }
+html.light .bg-slate-950\/40 { background-color: rgba(15, 23, 42, 0.12) !important; }
+html.light .bg-slate-950\/60 { background-color: rgba(15, 23, 42, 0.15) !important; }
+html.light .bg-slate-950\/80 { background-color: rgba(255, 255, 255, 0.9) !important; }
+html.light .bg-slate-950\/85 { background-color: rgba(255, 255, 255, 0.9) !important; }
+html.light .bg-slate-950\/90 { background-color: rgba(255, 255, 255, 0.92) !important; }
+html.light .bg-slate-950\/95 { background-color: rgba(255, 255, 255, 0.95) !important; }
+
+html.light .bg-slate-900\/5 { background-color: rgba(15, 23, 42, 0.02) !important; }
+html.light .bg-slate-900\/10 { background-color: rgba(15, 23, 42, 0.05) !important; }
+html.light .bg-slate-900\/15 { background-color: rgba(15, 23, 42, 0.06) !important; }
+html.light .bg-slate-900\/20 { background-color: rgba(15, 23, 42, 0.08) !important; }
+html.light .bg-slate-900\/30 { background-color: #ffffff !important; }
+html.light .bg-slate-900\/40 { background-color: rgba(15, 23, 42, 0.15) !important; }
+html.light .bg-slate-900\/50 { background-color: rgba(15, 23, 42, 0.18) !important; }
+html.light .bg-slate-900\/60 { background-color: #ffffff !important; }
+html.light .bg-slate-900\/80 { background-color: rgba(255, 255, 255, 0.85) !important; }
+html.light .bg-slate-900\/90 { background-color: rgba(255, 255, 255, 0.9) !important; }
+html.light .bg-slate-900\/95 { background-color: rgba(255, 255, 255, 0.95) !important; }
+
+html.light .bg-amber-950\/40 {
+  background-color: #FEF3C7 !important;
+  color: #D97706 !important;
+}
+
+/* Ensure green/red buttons and special panels retain readability in light mode */
+html.light .keep-light,
+html.light .bg-rose-500,
+html.light .bg-red-500,
+html.light .text-emerald-400,
+html.light .text-red-400 {
+  color: inherit; /* retain their original green/red styling context */
+}
+
+html.light .bg-emerald-500 .text-slate-950,
+html.light .bg-red-500 .text-slate-950 {
+  color: #020617 !important;
+}
+
+/* CSS helper for clean scrolling aesthetics */
+*:not(.scrollbar-none):not(.no-scrollbar)::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  display: block !important;
+}
+*:not(.scrollbar-none):not(.no-scrollbar)::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+*:not(.scrollbar-none):not(.no-scrollbar)::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important; /* slate-200 equivalent */
+  border-radius: 9999px !important;
+}
+*:not(.scrollbar-none):not(.no-scrollbar)::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important; /* slate-300 equivalent on hover */
+}
+*:not(.scrollbar-none):not(.no-scrollbar) {
+  -ms-overflow-style: auto;
+  scrollbar-width: thin;
+}
+
+/* Scrollbar None / Hide Utility */
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Prevent horizontal overflow scroll entirely on mobile viewport sizes */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Eye-safe smooth dynamic theme switching color transitions */
+html, body, div, aside, main, header, footer, nav, section, article, button, input, textarea, select, h1, h2, h3, h4, h5, h6, p, span, a, label, svg, path, hr {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
+/* Maintain bottom navigation visual integrity for desktop in light/day mode */
+@media (min-width: 768px) {
+  /* Restore variables back to dark state inside desktop bar */
+  html.light .desktop-dark-nav-container,
+  html.light .desktop-dark-nav-container * {
+    --slate-50: #fafafa !important;
+    --slate-100: #fafafa !important;
+    --slate-200: #a1a1aa !important;
+    --slate-300: #fafafa !important;
+    --slate-350: #a1a1aa !important;
+    --slate-400: #a1a1aa !important;
+    --slate-550: #3b82f6 !important;
+    --slate-500: #3b82f6 !important;
+    --slate-650: #27272a !important;
+    --slate-600: #27272a !important;
+    --slate-750: #27272a !important;
+    --slate-805: #27272a !important;
+    --slate-800: #27272a !important;
+    --slate-850: #27272a !important;
+    --slate-900: #212124 !important;
+    --slate-955: #0b0c10 !important;
+    --slate-1000: #0b0c10 !important;
+    --slate-950: #18181b !important;
+  }
+
+  /* Specific element background, border, and text corrections to bypass light mode importants */
+  html.light .desktop-dark-nav-container {
+    background-color: rgba(11, 12, 16, 0.95) !important;
+    border-color: rgba(33, 33, 36, 0.8) !important;
+  }
+
+  html.light .desktop-dark-nav-container .bg-slate-955 {
+    background-color: #0b0c10 !important;
+  }
+
+  html.light .desktop-dark-nav-container [class*="bg-slate-955"] {
+    background-color: rgba(11, 12, 16, 0.95) !important;
+  }
+
+  html.light .desktop-dark-nav-container .bg-slate-950 {
+    background-color: #18181b !important;
+  }
+
+  html.light .desktop-dark-nav-container .bg-slate-900 {
+    background-color: #212124 !important;
+  }
+
+  html.light .desktop-dark-nav-container .bg-slate-900\/50 {
+    background-color: rgba(33, 33, 36, 0.5) !important;
+  }
+
+  html.light .desktop-dark-nav-container .bg-slate-900\/60 {
+    background-color: rgba(33, 33, 36, 0.6) !important;
+  }
+
+  html.light .desktop-dark-nav-container .bg-slate-950\/40 {
+    background-color: rgba(24, 24, 27, 0.4) !important;
+  }
+
+  html.light .desktop-dark-nav-container .border-slate-800 {
+    border-color: #27272a !important;
+  }
+
+  html.light .desktop-dark-nav-container .border-slate-850 {
+    border-color: #27272a !important;
+  }
+
+  html.light .desktop-dark-nav-container .border-slate-900 {
+    border-color: #212124 !important;
+  }
+
+  html.light .desktop-dark-nav-container .text-slate-50 { color: #fafafa !important; }
+  html.light .desktop-dark-nav-container .text-slate-100 { color: #fafafa !important; }
+  html.light .desktop-dark-nav-container .text-slate-200 { color: #a1a1aa !important; }
+  html.light .desktop-dark-nav-container .text-slate-300 { color: #fafafa !important; }
+  html.light .desktop-dark-nav-container .text-slate-350 { color: #a1a1aa !important; }
+  html.light .desktop-dark-nav-container .text-slate-400 { color: #a1a1aa !important; }
+  html.light .desktop-dark-nav-container .text-slate-450 { color: #a1a1aa !important; }
+  html.light .desktop-dark-nav-container .text-slate-500 { color: #3b82f6 !important; }
+  html.light .desktop-dark-nav-container .text-slate-955 { color: #0b0c10 !important; }
+}
+
+
+/* Custom class for the registry badge to ensure perfect readability in both themes */
+.registry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  transition: all 0.2s ease-in-out;
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important; /* text-emerald-400 (crystal-clear bright emerald tone in dark mode) */
+}
+
+.registry-badge:hover {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+  color: #6ee7b7 !important;
+}
+
+.registry-badge .registry-icon {
+  color: #34d399 !important;
+  width: 10px;
+  height: 10px;
+}
+
+.registry-badge:hover .registry-icon {
+  color: #6ee7b7 !important;
+}
+
+/* Day/Light mode precise overrides to bypass global text-white overlays */
+html.light .registry-badge {
+  background-color: rgba(5, 150, 105, 0.08) !important; /* Soft green tint tint background */
+  border-color: rgba(5, 150, 105, 0.25) !important;
+  color: #059669 !important; /* Crisp dark emerald green for high visibility in Day mode */
+}
+
+html.light .registry-badge:hover {
+  background-color: rgba(5, 150, 105, 0.14) !important;
+  color: #047857 !important;
+}
+
+html.light .registry-badge .registry-icon {
+  color: #059669 !important;
+}
+
+html.light .registry-badge:hover .registry-icon {
+  color: #047857 !important;
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "Verified Social Network",
+  "description": "A premium, clean social media application focused on trust and real, verified users with custom feed filters, public profiles, interactive verification flows, and direct messaging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
